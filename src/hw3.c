@@ -99,7 +99,7 @@ GameState* initialize_game_state(const char *filename) {
 int isLegalWord(const char *word) {
    return 0; 
 }
-void extract_word_H(GameState *game, int row, int col,int tiles_length){
+int check_horizontal(GameState *game, int row, int col,int tiles_length,const char *tiles, int simple_check){
     char word_extracted[50];
     int word_extracted_length; 
     int col_start_index = col;
@@ -107,6 +107,7 @@ void extract_word_H(GameState *game, int row, int col,int tiles_length){
     //first condition
     //go left of the starting index
     
+
     while(((col_start_index -1) != -1) && (top_tile(game->gameboard[row][col_start_index-1]) != '.')){
         col_start_index--;
     }
@@ -114,8 +115,41 @@ void extract_word_H(GameState *game, int row, int col,int tiles_length){
     while( ((col_end_index+1) < game->game_cols)&& (top_tile(game->gameboard[row][col_end_index+1]) != '.')){
         col_end_index++; 
     }
+
+    if(simple_check){
+        if((col_start_index == col) && (col_end_index == col)){ //meaning that left and right doesn't have anything. it works
+            return 1; 
+        }
+    }
     //after this line we have the index of the word we want. 
     word_extracted_length = (col_start_index - col_end_index)+1;
+    int word_extracted_index = 0; 
+    if(col_start_index < col){//extract stuff before tiles you want to place
+        for(int x = col_start_index; x < col; x++){
+            word_extracted[word_extracted_index] = (top_tile(game->gameboard[row][x]));
+            word_extracted_index++; 
+        }
+    }
+    for( int tiles_index = 0; tiles_index < tiles_length;tiles_index++){ //extract word from "tiles"
+        if(tiles[tiles_index] == ' '){//get it from the gameboard
+            word_extracted[word_extracted_index] = (top_tile(game->gameboard[row][col]));
+            word_extracted_index++;
+            col++;
+        }else{ //get it frm tiles
+            word_extracted[word_extracted_index] = tiles[tiles_index];
+            word_extracted_index++;
+            col++;
+        }
+    }
+    if(col_end_index > col){ // extract word after "tiles"
+        for(int y = col+1; y <= col_end_index; y++){
+            word_extracted[word_extracted_index] = (top_tile(game->gameboard[row][y]));
+            word_extracted_index++; 
+        }
+    }
+    if(isLegalWord(word_extracted)){
+        return 1;
+    }
 
 }
 void extract_word_V(GameState *game){
