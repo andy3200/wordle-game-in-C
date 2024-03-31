@@ -121,7 +121,7 @@ GameState* gamestate_copy(GameState *source, int new_rows, int new_cols){
 //checks if word is legal. return 1 if it is legal. 
 int isLegalWord(const char *word) {
     char buffer[50];
-    FILE* word_file = fopen("words.txt", "r");
+    FILE* word_file = fopen("tests/words.txt", "r");
     while(fgets(buffer,50,word_file)!= NULL){
         size_t word_length = strlen(buffer);
         //remove the new line character and replace it with null terminator
