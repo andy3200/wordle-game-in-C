@@ -51,21 +51,18 @@ char top_tile(tile_stack *stack){
 GameState* initialize_game_state(const char *filename) {
     int rows = 0;
     int cols = 0;
-    int on_first_line = 1;
+    char reading_buffer[500];
     FILE *file;
     file = fopen(filename,"r");
-    char ch;
-    //  get the number of rows and cols
-    while ((ch = fgetc(file)) != EOF) {
-        if (ch == '\n') {
-            rows++;
-            on_first_line = 0;
-        } else {
-            if(on_first_line){
-                cols++;
-            }
-        }
+    if(file == NULL){
+        printf("error cant find file");
+        exit(1);
     }
+    //  get the number of rows and cols
+    while (fgets(reading_buffer, sizeof(reading_buffer), file) != NULL) {
+        rows++; // Increment line count for each line read
+    }
+    cols = strlen(reading_buffer) -1;
     //allocate memory 
     GameState *game = malloc(sizeof(GameState));
     game-> game_rows = rows;
@@ -80,16 +77,20 @@ GameState* initialize_game_state(const char *filename) {
     }
     fseek(file, 0, SEEK_SET); //reset the filepointer to iterate through it again.
     int curr_row = 0;
-    int curr_col = 0;
     // copy the file matrix into our code 
-    while ((ch = fgetc(file)) != EOF) {
-        if (ch == '\n') {
-            curr_row++;
-            curr_col = 0;
-        }else{
-            push_tile((game->gameboard[curr_row][curr_col]), ch);
-        curr_col++;
+    while (fgets(reading_buffer, sizeof(reading_buffer), file) != NULL) {
+        for(int x = 0 ; x < cols ; x++){
+            if(reading_buffer[x] == '\n'){
+                continue;
+            }else{
+                if(reading_buffer[x] == '.'){
+                    continue;
+                }else{
+                    push_tile((game->gameboard[curr_row][x]),reading_buffer[x]);
+                }
+            }
         }
+        curr_row++;
     }
     game-> previous = NULL;
     fclose(file);
