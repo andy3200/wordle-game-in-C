@@ -275,12 +275,11 @@ int check_vertical(GameState *game, int row, int col,int tiles_length,const char
         }
         row_end_index = row + tiles_length -1; //basically no change 
     }else{//not extending
-        char the_top = top_tile(game->gameboard[row_start_index-1][col]);
-        while(((row_start_index -1) != -1) && (the_top != '.')){
+        while(((row_start_index -1) != -1) && ((top_tile(game->gameboard[row_start_index-1][col])) != '.')){
             row_start_index--;
         }
         //go down of ending index
-        while( ((row_end_index+1) < game->game_rows)&& (top_tile(game->gameboard[row_start_index+1][col]) != '.')){
+        while( ((row_end_index+1) < game->game_rows)&& (top_tile(game->gameboard[row_end_index+1][col]) != '.')){
             row_end_index++; 
         }
     }
