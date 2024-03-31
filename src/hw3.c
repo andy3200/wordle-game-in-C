@@ -16,12 +16,12 @@ void init_tile_stack(tile_stack *stack) {
 }
 
 // check if stack is empty 
-int is_stack_empty(tile_stack *stack) {
+int is_tile_stack_empty(tile_stack *stack) {
     return (stack->top == -1);
 }
 
 // check if stack is full 
-int is_stack_full(tile_stack *stack) {
+int is_tile_stack_full(tile_stack *stack) {
     return (stack->top == (MAX_SIZE - 1));
 }
 
@@ -87,7 +87,7 @@ GameState* initialize_game_state(const char *filename) {
             curr_row++;
             curr_col = 0;
         }else{
-            push_tile(&(game->gameboard[curr_row][curr_col]), ch);
+            push_tile((game->gameboard[curr_row][curr_col]), ch);
         curr_col++;
         }
     }
@@ -137,8 +137,7 @@ int isLegalWord(const char *word) {
 }
 int check_horizontal(GameState *game, int row, int col,int tiles_length,const char *tiles, int simple_check){
     int is_extending = 0; 
-    char word_extracted[50];
-    int word_extracted_length; 
+    char word_extracted[50]; 
     int col_start_index = col;
     int col_end_index = col +tiles_length -1;
     int word_extracted_index = 0; 
@@ -244,7 +243,6 @@ int check_horizontal(GameState *game, int row, int col,int tiles_length,const ch
 int check_vertical(GameState *game, int row, int col,int tiles_length,const char *tiles, int simple_check){
     int is_extending = 0; 
     char word_extracted[50];
-    int word_extracted_length; 
     int row_start_index = row;
     int row_end_index = row +tiles_length -1;
     int word_extracted_index = 0; 
@@ -363,11 +361,10 @@ GameState* place_tiles(GameState *game, int row, int col, char direction, const 
     } 
     //Horizontally 
     if (direction == 'H') {
-        int H_row = row; //index to start placing 
         int H_col  = col; 
         if(check_horizontal(game,row,col,tiles_length,tiles,0) ==1 ){ //check the new word constructed (not extending)
             for(int x = 0; x < tiles_length; x++){
-                if((check_vertical(game,row,H_col,0,tiles[x],1))!= 1){//remember to change this to vertical 
+                if((check_vertical(game,row,H_col,0,&tiles[x],1))!= 1){//remember to change this to vertical 
                     all_valid = 0;
                     return game;
                 }
@@ -378,7 +375,7 @@ GameState* place_tiles(GameState *game, int row, int col, char direction, const 
             extending = 1; 
             for(int x = 0; x < tiles_length; x++){
                 if(H_col < game->game_cols){
-                    if((check_vertical(game,row,H_col,0,tiles[x],1))!= 1){//remember to change this to vertical 
+                    if((check_vertical(game,row,H_col,0,&tiles[x],1))!= 1){//remember to change this to vertical 
                         all_valid = 0;
                         return game;
                     }
@@ -416,10 +413,9 @@ GameState* place_tiles(GameState *game, int row, int col, char direction, const 
     //Vertically 
     if (direction == 'V') {
         int V_row = row; //index to start placing 
-        int V_col  = col; 
         if(check_vertical(game,row,col,tiles_length,tiles,0) ==1 ){ //check the new word constructed (not extending)
             for(int x = 0; x < tiles_length; x++){
-                if((check_horizontal(game,V_row,col,0,tiles[x],1))!= 1){//remember to change this to vertical 
+                if((check_horizontal(game,V_row,col,0,&tiles[x],1))!= 1){//remember to change this to vertical 
                     all_valid = 0;
                     return game;
                 }
@@ -430,7 +426,7 @@ GameState* place_tiles(GameState *game, int row, int col, char direction, const 
             extending = 1; 
             for(int x = 0; x < tiles_length; x++){
                 if(V_row < game->game_rows){
-                    if((check_horizontal(game,V_row,col,0,tiles[x],1))!= 1){//remember to change this to vertical 
+                    if((check_horizontal(game,V_row,col,0,&tiles[x],1))!= 1){//remember to change this to vertical 
                         all_valid = 0;
                         return game;
                     }
@@ -465,22 +461,64 @@ GameState* place_tiles(GameState *game, int row, int col, char direction, const 
             return new_game;
         }
     }
+    return game; //this never happens 
+}
 
-
-
-
+void free_each_game_state(GameState *game){
+    if (game == NULL) {
+        return;
+    }
+    for (int x = 0; x < game->game_rows; x++) {
+        for (int y = 0; y < game->game_cols; y++) {
+            free(game->gameboard[x][y]); //free each entry (the stack)
+        }
+        free(game->gameboard[x]);
+    }
+    free(game->gameboard);
+    free(game);
 }
 
 GameState* undo_place_tiles(GameState *game) {
-    (void)game;
-    return NULL;
+    if(game->previous == NULL){
+        return game;
+    }
+    GameState* returned_game = game->previous;
+    free_each_game_state(game);
+    return returned_game; 
 }
 
 void free_game_state(GameState *game) {
-    (void)game;
+    GameState* current_game = game;
+    while(current_game != NULL){
+        GameState* next_to_free = current_game->previous;
+        free_each_game_state(current_game);
+        current_game = next_to_free;
+    }
 }
 
 void save_game_state(GameState *game, const char *filename) {
-    (void)game;
-    (void)filename;
+    FILE* dest_file = fopen(filename,"w");
+    tile_stack* current_stack;
+    char letter;
+    for (int x = 0; x < game->game_rows; x++) {
+        for (int y = 0; y < game->game_cols; y++) {
+            current_stack = game->gameboard[x][y];
+            if(current_stack->top == -1){
+                letter = '.';
+            }else{
+                letter = top_tile(current_stack);
+            }
+            fprintf(dest_file, "%c", letter);
+        }
+        fprintf(dest_file, "\n");
+    }
+    for (int x = 0; x < game->game_rows; x++) {
+        for (int y = 0; y < game->game_cols; y++) {
+            current_stack = game->gameboard[x][y];
+            int top_index = (current_stack ->top) +1;
+            fprintf(dest_file, "%d", top_index);
+        }
+        fprintf(dest_file, "\n");
+    }
+    
 }
