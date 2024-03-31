@@ -246,8 +246,11 @@ void extract_word_V(GameState *game){
 
 }
 GameState* place_tiles(GameState *game, int row, int col, char direction, const char *tiles, int *num_tiles_placed) {
+    int extending = 0;
     int all_valid = 0; 
+    int tiles_placed = 0;
     int tiles_length = strlen(tiles);
+    int col_end_index = col +tiles_length -1;
     //error checking 
     if((row >= (game->game_rows)) || (col >= (game->game_cols))){
         return game;
@@ -269,6 +272,7 @@ GameState* place_tiles(GameState *game, int row, int col, char direction, const 
             }
             all_valid = 1; 
         }else if(check_horizontal(game,row,col,tiles_length,tiles,0) ==2){//check the word constructed (extending)
+            extending = 1; 
             for(int x = 0; x < tiles_length; x++){
                 if(H_col < game->game_cols){
                     if((check_horizontal(game,row,H_col,0,tiles[x],1))!= 1){//remember to change this to vertical 
@@ -283,7 +287,27 @@ GameState* place_tiles(GameState *game, int row, int col, char direction, const 
             return game; 
         }
         if(all_valid){ //start placing (safe now)
-            
+            int new_board_col;
+            int curr_col = col;
+            int curr_row = row; 
+            if(extending){
+                new_board_col = col_end_index+1;
+            }else{
+                new_board_col = game->game_cols;
+            }
+            GameState* new_game = gamestate_copy(game,game->game_rows,new_board_col); //create the new game 
+            for( int tiles_index = 0; tiles_index < tiles_length;tiles_index++){ //start placing tiles
+                if(tiles[tiles_index] == ' '){//dont put anything
+                    curr_col++;
+                }else{ //place tile
+                    push_tile(new_game->gameboard[curr_row][curr_col],tiles[tiles_index]);
+                    curr_col++;
+                    tiles_placed++;
+                }
+            }
+            *num_tiles_placed = tiles_placed;
+            new_game->previous = game;
+            return new_game;
         }
     }
 
