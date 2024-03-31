@@ -185,7 +185,6 @@ int check_horizontal(GameState *game, int row, int col,int tiles_length,const ch
         }
     }else{
         if(is_extending){//handle extending 
-            GameState* new_game = gamestate_copy(game, game->game_rows, col_end_index+1);
             if(col_start_index < col){//extract stuff before tiles you want to place
                 for(int x = col_start_index; x < col; x++){
                     word_extracted[word_extracted_index] = (top_tile(game->gameboard[row][x]));
@@ -210,7 +209,6 @@ int check_horizontal(GameState *game, int row, int col,int tiles_length,const ch
             }
         }else{
             //after this line we have the index of the word we want. 
-            word_extracted_length = (col_start_index - col_end_index)+1; //might be useless
             if(col_start_index < col){//extract stuff before tiles you want to place
                 for(int x = col_start_index; x < col; x++){
                     word_extracted[word_extracted_index] = (top_tile(game->gameboard[row][x]));
@@ -228,6 +226,7 @@ int check_horizontal(GameState *game, int row, int col,int tiles_length,const ch
                     col++;
                 }
             }
+            col--; //-1 because after the last loop col will be incremented
             if(col_end_index > col){ // extract word after "tiles"
                 for(int y = col+1; y <= col_end_index; y++){
                     word_extracted[word_extracted_index] = (top_tile(game->gameboard[row][y]));
@@ -242,8 +241,111 @@ int check_horizontal(GameState *game, int row, int col,int tiles_length,const ch
         }
     }
 }
-void extract_word_V(GameState *game){
-
+int check_vertical(GameState *game, int row, int col,int tiles_length,const char *tiles, int simple_check){
+    int is_extending = 0; 
+    char word_extracted[50];
+    int word_extracted_length; 
+    int row_start_index = row;
+    int row_end_index = row +tiles_length -1;
+    int word_extracted_index = 0; 
+    //first condition
+    //go up of the starting index
+    
+    if(row_end_index > ((game->game_rows)-1)){ // extending
+        is_extending = 1;
+        while(((row_start_index -1) != -1) && (top_tile(game->gameboard[row_start_index-1][col]) != '.')){
+        row_start_index--;
+        }
+        row_end_index = row + tiles_length -1; //basically no change 
+    }else{//not extending
+        while(((row_start_index -1) != -1) && (top_tile(game->gameboard[row_start_index-1][col]) != '.')){
+            row_start_index--;
+        }
+        //go down of ending index
+        while( ((row_end_index+1) < game->game_rows)&& (top_tile(game->gameboard[row_start_index+1][col]) != '.')){
+            row_end_index++; 
+        }
+    }
+    if(simple_check){
+        if((row_start_index == row) && (row_end_index == row)){ //meaning that up and down doesn't have anything. it works
+            return 1; 
+        }else{
+            for(int x = row_start_index; x <= row_end_index; x++){
+                if(x == row){
+                    if(tiles[0] == ' '){
+                        word_extracted[word_extracted_index] = (top_tile(game->gameboard[row][col]));
+                    }else{
+                        word_extracted[word_extracted_index] = tiles[0];//get the letter that you want to check. make sure pass it in.
+                    }
+                    word_extracted_index++;
+                }else{
+                    word_extracted[word_extracted_index] = (top_tile(game->gameboard[x][col]));
+                    word_extracted_index++; 
+                }
+            }
+            if(isLegalWord(word_extracted)){
+                return 1;
+            }else{
+                return 0;
+            }
+        }
+    }else{
+        if(is_extending){//handle extending 
+            if(row_start_index < row){//extract stuff before tiles you want to place
+                for(int x = row_start_index; x < row; x++){
+                    word_extracted[word_extracted_index] = (top_tile(game->gameboard[x][col]));
+                    word_extracted_index++; 
+                }
+            }
+            for( int tiles_index = 0; tiles_index < tiles_length;tiles_index++){ //extract word from "tiles"
+                if(tiles[tiles_index] == ' '){//get it from the gameboard
+                    word_extracted[word_extracted_index] = (top_tile(game->gameboard[row][col]));
+                    word_extracted_index++;
+                    row++;
+                }else{ //get it frm tiles
+                    word_extracted[word_extracted_index] = tiles[tiles_index];
+                    word_extracted_index++;
+                    row++;
+                }
+            }
+            if(isLegalWord(word_extracted)){
+                return 2; // return 2 for valid word and board needs to be extended 
+            }else{
+                return 0;
+            }
+        }else{
+            //after this line we have the index of the word we want. 
+            if(row_start_index < row){//extract stuff before tiles you want to place
+                for(int x = row_start_index; x < row; x++){
+                    word_extracted[word_extracted_index] = (top_tile(game->gameboard[x][col]));
+                    word_extracted_index++; 
+                }
+            }
+            for( int tiles_index = 0; tiles_index < tiles_length;tiles_index++){ //extract word from "tiles"
+                if(tiles[tiles_index] == ' '){//get it from the gameboard
+                    word_extracted[word_extracted_index] = (top_tile(game->gameboard[row][col]));
+                    word_extracted_index++;
+                    row++;
+                }else{ //get it frm tiles
+                    word_extracted[word_extracted_index] = tiles[tiles_index];
+                    word_extracted_index++;
+                    row++;
+                }
+            }
+            row--; //-1 because after the last loop row will be incremented
+            if(row_end_index > row){ // extract word after "tiles"
+                for(int y = row+1; y <= row_end_index; y++){
+                    word_extracted[word_extracted_index] = (top_tile(game->gameboard[y][col]));
+                    word_extracted_index++; 
+                }
+            }
+            if(isLegalWord(word_extracted)){
+                return 1;
+            }else{
+                return 0;
+            }
+        }
+    }
 }
 GameState* place_tiles(GameState *game, int row, int col, char direction, const char *tiles, int *num_tiles_placed) {
     int extending = 0;
@@ -251,6 +353,7 @@ GameState* place_tiles(GameState *game, int row, int col, char direction, const 
     int tiles_placed = 0;
     int tiles_length = strlen(tiles);
     int col_end_index = col +tiles_length -1;
+    int row_end_index = row +tiles_length -1;
     //error checking 
     if((row >= (game->game_rows)) || (col >= (game->game_cols))){
         return game;
@@ -264,7 +367,7 @@ GameState* place_tiles(GameState *game, int row, int col, char direction, const 
         int H_col  = col; 
         if(check_horizontal(game,row,col,tiles_length,tiles,0) ==1 ){ //check the new word constructed (not extending)
             for(int x = 0; x < tiles_length; x++){
-                if((check_horizontal(game,row,H_col,0,tiles[x],1))!= 1){//remember to change this to vertical 
+                if((check_vertical(game,row,H_col,0,tiles[x],1))!= 1){//remember to change this to vertical 
                     all_valid = 0;
                     return game;
                 }
@@ -275,7 +378,7 @@ GameState* place_tiles(GameState *game, int row, int col, char direction, const 
             extending = 1; 
             for(int x = 0; x < tiles_length; x++){
                 if(H_col < game->game_cols){
-                    if((check_horizontal(game,row,H_col,0,tiles[x],1))!= 1){//remember to change this to vertical 
+                    if((check_vertical(game,row,H_col,0,tiles[x],1))!= 1){//remember to change this to vertical 
                         all_valid = 0;
                         return game;
                     }
@@ -310,6 +413,59 @@ GameState* place_tiles(GameState *game, int row, int col, char direction, const 
             return new_game;
         }
     }
+    //Vertically 
+    if (direction == 'V') {
+        int V_row = row; //index to start placing 
+        int V_col  = col; 
+        if(check_vertical(game,row,col,tiles_length,tiles,0) ==1 ){ //check the new word constructed (not extending)
+            for(int x = 0; x < tiles_length; x++){
+                if((check_horizontal(game,V_row,col,0,tiles[x],1))!= 1){//remember to change this to vertical 
+                    all_valid = 0;
+                    return game;
+                }
+                V_row++;
+            }
+            all_valid = 1; 
+        }else if(check_vertical(game,row,col,tiles_length,tiles,0) ==2){//check the word constructed (extending)
+            extending = 1; 
+            for(int x = 0; x < tiles_length; x++){
+                if(V_row < game->game_rows){
+                    if((check_horizontal(game,V_row,col,0,tiles[x],1))!= 1){//remember to change this to vertical 
+                        all_valid = 0;
+                        return game;
+                    }
+                }
+                V_row++;
+            }
+            all_valid = 1;
+        }else{//not valid
+            return game; 
+        }
+        if(all_valid){ //start placing (safe now)
+            int new_board_row;
+            int curr_col = col;
+            int curr_row = row; 
+            if(extending){
+                new_board_row = row_end_index+1;
+            }else{
+                new_board_row = game->game_rows;
+            }
+            GameState* new_game = gamestate_copy(game,new_board_row,game->game_cols); //create the new game 
+            for( int tiles_index = 0; tiles_index < tiles_length;tiles_index++){ //start placing tiles
+                if(tiles[tiles_index] == ' '){//dont put anything
+                    curr_row++;
+                }else{ //place tile
+                    push_tile(new_game->gameboard[curr_row][curr_col],tiles[tiles_index]);
+                    curr_row++;
+                    tiles_placed++;
+                }
+            }
+            *num_tiles_placed = tiles_placed;
+            new_game->previous = game;
+            return new_game;
+        }
+    }
+
 
 
 
