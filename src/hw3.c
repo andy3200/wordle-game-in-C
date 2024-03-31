@@ -44,6 +44,9 @@ char pop_tile(tile_stack *stack) {
 }
 //get the top letter of the stack 
 char top_tile(tile_stack *stack){
+    if(stack->top == -1){
+        return '.';
+    }
     return stack->letters[(stack->top)];
 }
 
@@ -128,6 +131,9 @@ int isLegalWord(const char *word) {
         if (word_length > 0 && buffer[word_length - 1] == '\n') {
             buffer[word_length - 1] = '\0';
         }
+        for (size_t i = 0; buffer[i]; i++) {
+            buffer[i] = toupper(buffer[i]);
+        }
         if(strcmp(buffer, word) == 0){
             fclose(word_file);
             return 1; 
@@ -141,6 +147,9 @@ int check_horizontal(GameState *game, int row, int col,int tiles_length,const ch
     char word_extracted[50]; 
     int col_start_index = col;
     int col_end_index = col +tiles_length -1;
+    if(tiles_length== 0){
+        col_end_index++;
+    }
     int word_extracted_index = 0; 
     //first condition
     //go left of the starting index
@@ -178,8 +187,10 @@ int check_horizontal(GameState *game, int row, int col,int tiles_length,const ch
                 }
             }
             if(isLegalWord(word_extracted)){
+                memset(word_extracted, '\0', sizeof(word_extracted));
                 return 1;
             }else{
+                memset(word_extracted, '\0', sizeof(word_extracted));
                 return 0;
             }
         }
@@ -203,8 +214,10 @@ int check_horizontal(GameState *game, int row, int col,int tiles_length,const ch
                 }
             }
             if(isLegalWord(word_extracted)){
+                memset(word_extracted, '\0', sizeof(word_extracted));
                 return 2; // return 2 for valid word and board needs to be extended 
             }else{
+                memset(word_extracted, '\0', sizeof(word_extracted));
                 return 0;
             }
         }else{
@@ -234,8 +247,10 @@ int check_horizontal(GameState *game, int row, int col,int tiles_length,const ch
                 }
             }
             if(isLegalWord(word_extracted)){
+                memset(word_extracted, '\0', sizeof(word_extracted));
                 return 1;
             }else{
+                memset(word_extracted, '\0', sizeof(word_extracted));
                 return 0;
             }
         }
@@ -246,6 +261,9 @@ int check_vertical(GameState *game, int row, int col,int tiles_length,const char
     char word_extracted[50];
     int row_start_index = row;
     int row_end_index = row +tiles_length -1;
+    if(tiles_length== 0){
+        row_end_index++;
+    }
     int word_extracted_index = 0; 
     //first condition
     //go up of the starting index
@@ -257,7 +275,8 @@ int check_vertical(GameState *game, int row, int col,int tiles_length,const char
         }
         row_end_index = row + tiles_length -1; //basically no change 
     }else{//not extending
-        while(((row_start_index -1) != -1) && (top_tile(game->gameboard[row_start_index-1][col]) != '.')){
+        char the_top = top_tile(game->gameboard[row_start_index-1][col]);
+        while(((row_start_index -1) != -1) && (the_top != '.')){
             row_start_index--;
         }
         //go down of ending index
@@ -283,8 +302,10 @@ int check_vertical(GameState *game, int row, int col,int tiles_length,const char
                 }
             }
             if(isLegalWord(word_extracted)){
+                memset(word_extracted, '\0', sizeof(word_extracted));
                 return 1;
             }else{
+                memset(word_extracted, '\0', sizeof(word_extracted));
                 return 0;
             }
         }
@@ -308,8 +329,10 @@ int check_vertical(GameState *game, int row, int col,int tiles_length,const char
                 }
             }
             if(isLegalWord(word_extracted)){
+                memset(word_extracted, '\0', sizeof(word_extracted));
                 return 2; // return 2 for valid word and board needs to be extended 
             }else{
+                memset(word_extracted, '\0', sizeof(word_extracted));
                 return 0;
             }
         }else{
@@ -339,8 +362,10 @@ int check_vertical(GameState *game, int row, int col,int tiles_length,const char
                 }
             }
             if(isLegalWord(word_extracted)){
+                memset(word_extracted, '\0', sizeof(word_extracted));
                 return 1;
             }else{
+                memset(word_extracted, '\0', sizeof(word_extracted));
                 return 0;
             }
         }
@@ -416,7 +441,7 @@ GameState* place_tiles(GameState *game, int row, int col, char direction, const 
         int V_row = row; //index to start placing 
         if(check_vertical(game,row,col,tiles_length,tiles,0) ==1 ){ //check the new word constructed (not extending)
             for(int x = 0; x < tiles_length; x++){
-                if((check_horizontal(game,V_row,col,0,&tiles[x],1))!= 1){//remember to change this to vertical 
+                if((check_horizontal(game,V_row,col,0,&tiles[x],1))!= 1){
                     all_valid = 0;
                     return game;
                 }
