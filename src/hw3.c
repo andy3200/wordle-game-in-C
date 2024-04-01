@@ -249,6 +249,7 @@ int check_horizontal(GameState *game, int row, int col,int tiles_length,const ch
                     word_extracted_index++; 
                 }
             }
+            word_extracted[word_extracted_index] = '\0';
             if(isLegalWord(word_extracted)){
                 memset(word_extracted, '\0', sizeof(word_extracted));
                 return 1;
@@ -363,6 +364,7 @@ int check_vertical(GameState *game, int row, int col,int tiles_length,const char
                     word_extracted_index++; 
                 }
             }
+            word_extracted[word_extracted_index] = '\0';
             if(isLegalWord(word_extracted)){
                 memset(word_extracted, '\0', sizeof(word_extracted));
                 return 1;
