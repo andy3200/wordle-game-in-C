@@ -109,7 +109,7 @@ GameState* gamestate_copy(GameState *source, int new_rows, int new_cols){
     for (int i = 0; i < new_game->game_rows; i++) {
         new_game->gameboard[i] = (tile_stack **)malloc((new_game->game_cols) * sizeof(tile_stack *));
         for (int j = 0; j < new_game-> game_cols; j++) {
-            new_game->gameboard[i][j] = malloc(sizeof(tile_stack));
+            new_game->gameboard[i][j] = (tile_stack *)malloc(sizeof(tile_stack));
             if((source->game_cols <= j) || (source->game_rows <= i)){//meaning source doesn't have that index
                 new_game-> gameboard[i][j] -> top = -1;
             }else{

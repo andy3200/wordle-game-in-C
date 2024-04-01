@@ -11,7 +11,6 @@ typedef struct GameState
     struct tile_stack *** gameboard; 
     int game_rows;
     int game_cols;
-
 } GameState;
 
 void init_tile_stack(tile_stack *stack);
