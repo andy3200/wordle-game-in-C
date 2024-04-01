@@ -148,6 +148,7 @@ int isLegalWord(const char *word) {
 int check_horizontal(GameState *game, int row, int col,int tiles_length,const char *tiles, int simple_check){
     int is_extending = 0; 
     char word_extracted[50]; 
+    char old_word[50];
     int col_start_index = col;
     int col_end_index = col +tiles_length -1;
     if(tiles_length== 0){
@@ -216,10 +217,24 @@ int check_horizontal(GameState *game, int row, int col,int tiles_length,const ch
                     col++;
                 }
             }
+            //check if you want to overlap same word
+            int old_word_index = 0;
+            for(int index = col_start_index; index <= col_end_index; index++){
+                old_word[old_word_index] = top_tile(game->gameboard[row][index]);
+                old_word_index++;
+            }
+            if(strcmp(old_word,word_extracted)==0){//overlapping same word
+                memset(old_word, '\0', sizeof(old_word));
+                memset(word_extracted, '\0', sizeof(word_extracted));
+                return 0;
+            }
+            word_extracted[word_extracted_index] = '\0';
             if(isLegalWord(word_extracted)){
+                memset(old_word, '\0', sizeof(old_word));
                 memset(word_extracted, '\0', sizeof(word_extracted));
                 return 2; // return 2 for valid word and board needs to be extended 
             }else{
+                memset(old_word, '\0', sizeof(old_word));
                 memset(word_extracted, '\0', sizeof(word_extracted));
                 return 0;
             }
@@ -249,11 +264,24 @@ int check_horizontal(GameState *game, int row, int col,int tiles_length,const ch
                     word_extracted_index++; 
                 }
             }
+            //check if you want to overlap same word
+            int old_word_index = 0;
+            for(int index = col_start_index; index <= col_end_index; index++){
+                old_word[old_word_index] = top_tile(game->gameboard[row][index]);
+                old_word_index++;
+            }
+            if(strcmp(old_word,word_extracted)==0){//overlapping same word
+                memset(old_word, '\0', sizeof(old_word));
+                memset(word_extracted, '\0', sizeof(word_extracted));
+                return 0;
+            }
             word_extracted[word_extracted_index] = '\0';
             if(isLegalWord(word_extracted)){
+                memset(old_word, '\0', sizeof(old_word));
                 memset(word_extracted, '\0', sizeof(word_extracted));
                 return 1;
             }else{
+                memset(old_word, '\0', sizeof(old_word));
                 memset(word_extracted, '\0', sizeof(word_extracted));
                 return 0;
             }
@@ -263,6 +291,7 @@ int check_horizontal(GameState *game, int row, int col,int tiles_length,const ch
 int check_vertical(GameState *game, int row, int col,int tiles_length,const char *tiles, int simple_check){
     int is_extending = 0; 
     char word_extracted[50];
+    char old_word[50];
     int row_start_index = row;
     int row_end_index = row +tiles_length -1;
     if(tiles_length== 0){
@@ -331,10 +360,24 @@ int check_vertical(GameState *game, int row, int col,int tiles_length,const char
                     row++;
                 }
             }
+            //check if you want to overlap same word
+            int old_word_index = 0;
+            for(int index = row_start_index; index <= row_end_index; index++){
+                old_word[old_word_index] = top_tile(game->gameboard[index][col]);
+                old_word_index++;
+            }
+            if(strcmp(old_word,word_extracted)==0){//overlapping same word
+                memset(old_word, '\0', sizeof(old_word));
+                memset(word_extracted, '\0', sizeof(word_extracted));
+                return 0;
+            }
+            word_extracted[word_extracted_index] = '\0';
             if(isLegalWord(word_extracted)){
+                memset(old_word, '\0', sizeof(old_word));
                 memset(word_extracted, '\0', sizeof(word_extracted));
                 return 2; // return 2 for valid word and board needs to be extended 
             }else{
+                memset(old_word, '\0', sizeof(old_word));
                 memset(word_extracted, '\0', sizeof(word_extracted));
                 return 0;
             }
@@ -364,11 +407,24 @@ int check_vertical(GameState *game, int row, int col,int tiles_length,const char
                     word_extracted_index++; 
                 }
             }
+            //check if you want to overlap same word
+            int old_word_index = 0;
+            for(int index = row_start_index; index <= row_end_index; index++){
+                old_word[old_word_index] = top_tile(game->gameboard[index][col]);
+                old_word_index++;
+            }
+            if(strcmp(old_word,word_extracted)==0){//overlapping same word
+                memset(old_word, '\0', sizeof(old_word));
+                memset(word_extracted, '\0', sizeof(word_extracted));
+                return 0;
+            }
             word_extracted[word_extracted_index] = '\0';
             if(isLegalWord(word_extracted)){
+                memset(old_word, '\0', sizeof(old_word));
                 memset(word_extracted, '\0', sizeof(word_extracted));
                 return 1;
             }else{
+                memset(old_word, '\0', sizeof(old_word));
                 memset(word_extracted, '\0', sizeof(word_extracted));
                 return 0;
             }
