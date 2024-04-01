@@ -113,8 +113,7 @@ GameState* gamestate_copy(GameState *source, int new_rows, int new_cols){
             if((source->game_cols <= j) || (source->game_rows <= i)){//meaning source doesn't have that index
                 new_game-> gameboard[i][j] -> top = -1;
             }else{
-                new_game-> gameboard[i][j] -> top = source->gameboard[i][j] ->top;
-                strcpy(new_game-> gameboard[i][j] -> letters,source->gameboard[i][j]->letters);
+                *(new_game->gameboard[i][j]) = *(source->gameboard[i][j]);
             }
         }
     }
