@@ -264,6 +264,8 @@ int check_horizontal(GameState *game, int row, int col,int tiles_length,const ch
                 }
             }
             if(empty){
+                memset(old_word, '\0', sizeof(old_word));
+                memset(word_extracted, '\0', sizeof(word_extracted));
                 return 0; //cant place on non-touching
             }
             if(strcmp(old_word,word_extracted)==0){//overlapping same word
@@ -403,6 +405,8 @@ int check_vertical(GameState *game, int row, int col,int tiles_length,const char
                 }
             }
             if(empty){
+                memset(old_word, '\0', sizeof(old_word));
+                memset(word_extracted, '\0', sizeof(word_extracted));
                 return 0; //cant place on non-touching
             }
             if(strcmp(old_word,word_extracted)==0){//overlapping same word
