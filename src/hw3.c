@@ -347,24 +347,11 @@ int check_vertical(GameState *game, int row, int col,int tiles_length,const char
                     row++;
                 }
             }
-            //check if you want to overlap same word
-            int old_word_index = 0;
-            for(int index = row_start_index; index <= row_end_index; index++){
-                old_word[old_word_index] = top_tile(game->gameboard[index][col]);
-                old_word_index++;
-            }
-            if(strcmp(old_word,word_extracted)==0){//overlapping same word
-                memset(old_word, '\0', sizeof(old_word));
-                memset(word_extracted, '\0', sizeof(word_extracted));
-                return 0;
-            }
             word_extracted[word_extracted_index] = '\0';
             if(isLegalWord(word_extracted)){
-                memset(old_word, '\0', sizeof(old_word));
                 memset(word_extracted, '\0', sizeof(word_extracted));
                 return 2; // return 2 for valid word and board needs to be extended 
             }else{
-                memset(old_word, '\0', sizeof(old_word));
                 memset(word_extracted, '\0', sizeof(word_extracted));
                 return 0;
             }
