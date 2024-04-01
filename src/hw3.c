@@ -147,6 +147,7 @@ int isLegalWord(const char *word) {
 }
 int check_horizontal(GameState *game, int row, int col,int tiles_length,const char *tiles, int simple_check){
     int is_extending = 0; 
+    int empty = 1;
     char word_extracted[50]; 
     char old_word[50];
     int col_start_index = col;
@@ -257,6 +258,14 @@ int check_horizontal(GameState *game, int row, int col,int tiles_length,const ch
                 old_word[old_word_index] = top_tile(game->gameboard[row][index]);
                 old_word_index++;
             }
+            for(int index_old = 0; index_old < old_word_index; index_old++){
+                if(old_word[index_old] != '.'){
+                    empty = 0;
+                }
+            }
+            if(empty){
+                return 0; //cant place on non-touching
+            }
             if(strcmp(old_word,word_extracted)==0){//overlapping same word
                 memset(old_word, '\0', sizeof(old_word));
                 memset(word_extracted, '\0', sizeof(word_extracted));
@@ -276,6 +285,7 @@ int check_horizontal(GameState *game, int row, int col,int tiles_length,const ch
     }
 }
 int check_vertical(GameState *game, int row, int col,int tiles_length,const char *tiles, int simple_check){
+    int empty = 1; 
     int is_extending = 0; 
     char word_extracted[50];
     char old_word[50];
@@ -386,6 +396,14 @@ int check_vertical(GameState *game, int row, int col,int tiles_length,const char
             for(int index = row_start_index; index <= row_end_index; index++){
                 old_word[old_word_index] = top_tile(game->gameboard[index][col]);
                 old_word_index++;
+            }
+            for(int index_old = 0; index_old < old_word_index; index_old++){
+                if(old_word[index_old] != '.'){
+                    empty = 0;
+                }
+            }
+            if(empty){
+                return 0; //cant place on non-touching
             }
             if(strcmp(old_word,word_extracted)==0){//overlapping same word
                 memset(old_word, '\0', sizeof(old_word));
