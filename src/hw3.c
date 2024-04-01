@@ -218,11 +218,33 @@ int check_horizontal(GameState *game, int row, int col,int tiles_length,const ch
                     col++;
                 }
             }
+            //check if you want to overlap same word
+            int old_word_index = 0;
+            for(int index = col_start_index; index <= col_end_index; index++){
+                if((game->game_cols <= index)){
+                    old_word[old_word_index] = '.';
+                }else{
+                    old_word[old_word_index] = top_tile(game->gameboard[row][index]);
+                }
+                old_word_index++;
+            }
+            for(int index_old = 0; index_old < old_word_index; index_old++){
+                if(old_word[index_old] != '.'){
+                    empty = 0;
+                }
+            }
+            if(empty){
+                memset(old_word, '\0', sizeof(old_word));
+                memset(word_extracted, '\0', sizeof(word_extracted));
+                return 0; //cant place on non-touching
+            }
             word_extracted[word_extracted_index] = '\0';
             if(isLegalWord(word_extracted)){
+                memset(old_word, '\0', sizeof(old_word));
                 memset(word_extracted, '\0', sizeof(word_extracted));
                 return 2; // return 2 for valid word and board needs to be extended 
             }else{
+                memset(old_word, '\0', sizeof(old_word));
                 memset(word_extracted, '\0', sizeof(word_extracted));
                 return 0;
             }
@@ -255,7 +277,11 @@ int check_horizontal(GameState *game, int row, int col,int tiles_length,const ch
             //check if you want to overlap same word
             int old_word_index = 0;
             for(int index = col_start_index; index <= col_end_index; index++){
-                old_word[old_word_index] = top_tile(game->gameboard[row][index]);
+                if((game->game_cols <= index)){
+                    old_word[old_word_index] = '.';
+                }else{
+                    old_word[old_word_index] = top_tile(game->gameboard[row][index]);
+                }
                 old_word_index++;
             }
             for(int index_old = 0; index_old < old_word_index; index_old++){
@@ -359,11 +385,38 @@ int check_vertical(GameState *game, int row, int col,int tiles_length,const char
                     row++;
                 }
             }
+             //check if you want to overlap same word
+            int old_word_index = 0;
+            for(int index = row_start_index; index <= row_end_index; index++){
+                if((game->game_rows <= index)){
+                    old_word[old_word_index] = '.';
+                }else{
+                    old_word[old_word_index] = top_tile(game->gameboard[index][col]);
+                }
+                old_word_index++;
+            }
+            for(int index_old = 0; index_old < old_word_index; index_old++){
+                if(old_word[index_old] != '.'){
+                    empty = 0;
+                }
+            }
+            if(empty){
+                memset(old_word, '\0', sizeof(old_word));
+                memset(word_extracted, '\0', sizeof(word_extracted));
+                return 0; //cant place on non-touching
+            }
+            if(strcmp(old_word,word_extracted)==0){//overlapping same word
+                memset(old_word, '\0', sizeof(old_word));
+                memset(word_extracted, '\0', sizeof(word_extracted));
+                return 0;
+            }
             word_extracted[word_extracted_index] = '\0';
             if(isLegalWord(word_extracted)){
+                memset(old_word, '\0', sizeof(old_word));
                 memset(word_extracted, '\0', sizeof(word_extracted));
                 return 2; // return 2 for valid word and board needs to be extended 
             }else{
+                memset(old_word, '\0', sizeof(old_word));
                 memset(word_extracted, '\0', sizeof(word_extracted));
                 return 0;
             }
@@ -396,7 +449,11 @@ int check_vertical(GameState *game, int row, int col,int tiles_length,const char
             //check if you want to overlap same word
             int old_word_index = 0;
             for(int index = row_start_index; index <= row_end_index; index++){
-                old_word[old_word_index] = top_tile(game->gameboard[index][col]);
+                if((game->game_rows <= index)){
+                    old_word[old_word_index] = '.';
+                }else{
+                    old_word[old_word_index] = top_tile(game->gameboard[index][col]);
+                }
                 old_word_index++;
             }
             for(int index_old = 0; index_old < old_word_index; index_old++){
